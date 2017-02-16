@@ -1,53 +1,65 @@
 <pre>
-  BIP: 70
+  BIP: 999
   Layer: Applications
-  Title: Payment Protocol
-  Author: Gavin Andresen <gavinandresen@gmail.com>
-          Mike Hearn <mhearn@bitcoinfoundation.org>
+  Title: Off-chain Payment Protocol
+  Author: Rune K. Svendsen <runesvend@gmail.com>
   Comments-Summary: No comments yet.
-  Comments-URI: https://github.com/bitcoin/bips/wiki/Comments:BIP-0070
-  Status: Final
-  Type: Standards Track
-  Created: 2013-07-29
+  Status: Draft
+  Created: 2017-02-14
 </pre>
 
 ==Abstract==
 
-This BIP describes a protocol for communication between a merchant and their customer, enabling
-both a better customer experience and better security against man-in-the-middle attacks on
-the payment process.
+This BIP describes an extension to the BIP70 payment protocol which allows a client to pay
+a server by providing one or more signatures over transaction inputs,
+as specified by the server. The protocol assumes some pre-existing relationship between the
+client and server, which allows the server to construct an unsigned transaction, with which
+the client can pay the server by providing signatures over specific inputs.
+The client is able to confirm how much value a given PaymentRequest pays the server by
+maintaining a personal "unspent transaction output set", which the client updates according
+to the unsigned transaction provided by the server, every time it delivers back signatures.
+
 
 ==Motivation==
 
-The current, minimal Bitcoin payment protocol operates as follows:
+The BIP70 Payment Protocol solves the problem of a customer wanting to pay a merchant using
+the Bitcoin blockchain. For many purposes, however, on-blockchain payments are too expensive,
+hence the value of a standardized way for customers to pay merchants without touching the 
+blockchain. 
 
-# Customer adds items to an online shopping basket, and decides to pay using Bitcoin.
-# Merchant generates a unique payment address, associates it with the customer's order, and asks the customer to pay.
-# Customer copies the Bitcoin address from the merchant's web page and pastes it into whatever wallet they are using OR follows a bitcoin: link and their wallet is launched with the amount to be paid.
-# Customer authorizes payment to the merchant's address and broadcasts the transaction through the Bitcoin p2p network.
-# Merchant's server detects payment and after sufficient transaction confirmations considers the transaction final.
+In addition to off-chain payments, this protocol can also be used between the
+online and the offline/private key-bearing part of a "watch-only" wallet. The wallet user
+generates a PaymentRequest using the online part of the wallet, delivers it to the offline
+wallet (eg. by USB stick), which signs the transaction according to spec.
 
-This BIP extends the above protocol to support several new features:
-
-# Human-readable, secure payment destinations-- customers will be asked to authorize payment to "example.com" instead of an inscrutable, 34-character bitcoin address.
-# Secure proof of payment, which the customer can use in case of a dispute with the merchant.
-# Resistance from man-in-the-middle attacks that replace a merchant's bitcoin address with an attacker's address before a transaction is authorized with a hardware wallet.
-# Payment received messages, so the customer knows immediately that the merchant has received, and has processed (or is processing) their payment.
-# Refund addresses, automatically given to the merchant by the customer's wallet software, so merchants do not have to contact customers before refunding overpayments or orders that cannot be fulfilled for some reason.
 
 ==Protocol==
 
-This BIP describes payment protocol messages encoded using Google's Protocol
-Buffers, authenticated using X.509 certificates, and communicated over
-http/https. Future BIPs might extend this payment protocol to other
-encodings, PKI systems, or transport protocols.
+===Setup phase===
 
-The payment protocol consists of three messages; PaymentRequest, Payment,
-and PaymentACK, and begins with the customer somehow indicating that
-they are ready to pay and the merchant's server responding with a
-PaymentRequest message:
+Before the client can start paying the server, the two parties must first exchange some setup 
+information which defines the relationship between the client and server. The nature of this
+information is left intentionally unspecified, allow this protocol to function only as a
+signing protocol, without concerning itself with which script(s) are signed, and thus exact
+relationship between client and server.
 
-<img src=bip-0070/Protocol_Sequence.png></img>
+In the case where this protocol is used between an online "watch only" wallet and an offline 
+(private key-bearing) signing wallet, the setup phase would comprise the client (offline signer) 
+sending its BIP32 XPubKey to the online/"watch only" wallet.
+
+In case of a micro-payment channel, during this phase the client would inform the server of its public key 
+and desired channel expiration date. Using this information, the server would generate a BIP70
+PaymentRequest, asking the client to pay to a 2-of-2 multi-signature address with the given 
+CHECKLOCKTIMEVERIFY (BIP65) expiration date. After the client has fulfilled this payment request,
+optionally waiting for confirmations, the setup phase would be over.
+
+In both cases, the setup phase leaves the server with enough information to generate an unsigned
+transaction for the client when requested. In case of the offline/online wallet, the purpose of a
+payment request would be to pay some other party (and have offline part sign this request), whereas
+in case of the micropayment channel, the purpose of the request would, presumably, be to pay the
+server itself. But, again, many different applications can be built on top of this protocol, which
+only concentrates on establishing a standardized way to request signatures over transaction inputs.
+
 
 ==Messages==
 
