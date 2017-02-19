@@ -10,17 +10,34 @@ package payments;
 option java_package = "org.bitcoin.protocols.payments";
 option java_outer_classname = "Protos";
 
+// VERSION 2: 
+// A reference to a public/private keypair.
+// Both used to reference a private key for signing inputs,
+//  and a public key (or its hash) in a change output.
+message KeyRef {
+        required bytes  pubkey = 1;           // Public key
+        optional uint32 bip32_index = 2;      // BIP32 key derivation index for this key, if appicable
+        // Add as many more optional fields as desired to help identify a particular key,
+}
 // VERSION 2: Order to sign a transaction input
 message SignInput {
-        required uint32 index = 1;            // Index of input to sign
-        required bytes  pubkey = 2;           // Sign with this public key's corresponding private key
+        required uint32 input_index = 1;      // Index of input to sign
+        required KeyRef signer_prvkey = 2;    // Sign with this private key 
         repeated uint8  sig_hash_flag = 3;    // Sign using this SIGHASH flag
+}
+// VERSION 2: A reference to an output, in the unsigned transaction,
+//  that belongs to the client
+message ChangeOut {
+        required uint32 output_index = 1;     // Output index of the change output
+        required KeyRef change_pubkey = 2;    // The output sends funds to this public key
+
 }
 // VERSION 2: Order to sign a transaction
 message SignTx {
         required bytes unsigned_tx = 1;         // Unsigned transaction
         repeated SignInput sign_inputs = 2;     // Inputs to sign in unsigned transaction
-        repeated bytes spent_txs = 3;           // Transactions which contain all outputs redeemed by "unsigned_tx"
+        repeated ChangeOut change_outs = 3;     // Outputs in the unsigned transaction that belong to the client
+        repeated bytes spent_txs = 4;           // Transactions contain all the outputs redeemed by inputs to sign in "unsigned_tx"
 }
 
 // Generalized form of "send payment to this/these bitcoin addresses"
