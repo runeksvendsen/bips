@@ -21,9 +21,10 @@ message KeyRef {
 }
 // VERSION 2: Order to sign a transaction input
 message SignInput {
-        required uint32 input_index = 1;      // Index of input to sign
-        required KeyRef signer_prvkey = 2;    // Sign with this private key 
-        repeated uint8  sig_hash_flag = 3;    // Sign using this SIGHASH flag
+        required KeyRef signer_prvkey = 1;    // Sign with this private key 
+        required uint32 input_index = 2;      // Index of input to sign
+        required bytes  prev_out_script = 3;  // The script that the input redeems. scriptPubKey/redeemScript (the script placed in the scriptSig for transaction hashing)
+        repeated uint8  sig_hash_flag = 4;    // Sign using this SIGHASH flag
 }
 // VERSION 2: A reference to an output, in the unsigned transaction,
 //  that belongs to the client
