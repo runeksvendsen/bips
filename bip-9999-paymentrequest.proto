@@ -67,7 +67,12 @@ message X509Certificates {
 }
 message Payment {
         optional bytes merchant_data = 1;  // From PaymentDetails.merchant_data
-        repeated bytes transactions = 2;   // Signed transactions that satisfy PaymentDetails.outputs
+        // Version 1 PaymentDetails: Signed transactions that satisfy PaymentDetails.outputs
+        // Version 2 PaymentDetails: Signed transactions that satisfy PaymentDetails.sign_tx
+        //      Notes: Signatures are placed in the scriptSig, serialized as, first, a "var_int"
+        //              indicating the number of signatures that follow, followed by this number of
+        //              serialized signatures each with a "var_int" prefix indicating length.
+        repeated bytes transactions = 2;   
         repeated Output refund_to = 3;     // Where to send refunds, if a refund is necessary
         optional string memo = 4;          // Human-readable message for the merchant
 }
