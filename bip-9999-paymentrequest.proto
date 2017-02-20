@@ -16,7 +16,7 @@ option java_outer_classname = "Protos";
 //  and a public key (or its hash) in a change output.
 message KeyRef {
         required bytes  pubkey = 1;           // Public key
-        optional uint32 bip32_index = 2;      // BIP32 key derivation index for this key, if appicable
+        optional uint32 bip32_index = 2;      // BIP32 key derivation index for this key, if applicable
         // Add as many more optional fields as desired to help identify a particular key
 }
 // VERSION 2: Order to sign a transaction input
