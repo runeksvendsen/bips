@@ -17,7 +17,7 @@ option java_outer_classname = "Protos";
 message KeyRef {
         required bytes  pubkey = 1;           // Public key
         optional uint32 bip32_index = 2;      // BIP32 key derivation index for this key, if appicable
-        // Add as many more optional fields as desired to help identify a particular key,
+        // Add as many more optional fields as desired to help identify a particular key
 }
 // VERSION 2: Order to sign a transaction input
 message SignInput {
@@ -31,7 +31,6 @@ message SignInput {
 message ChangeOut {
         required uint32 output_index = 1;     // Output index of the change output
         required KeyRef change_pubkey = 2;    // The output sends funds to this public key
-
 }
 // VERSION 2: Order to sign a transaction
 message SignTx {
