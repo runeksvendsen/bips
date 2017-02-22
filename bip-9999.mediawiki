@@ -24,13 +24,16 @@ to the unsigned transaction provided by the server, every time it delivers back 
 
 The BIP70 Payment Protocol solves the problem of a customer wanting to pay a merchant using
 the Bitcoin blockchain. For many purposes, however, on-blockchain payments are too expensive,
-hence the value of a standardized way for customers to pay merchants without touching the 
+hence the value in a standardized way for customers to pay merchants without touching the 
 blockchain. 
 
 In addition to off-chain payments, this protocol can also be used between the
 online and the offline/private key-bearing part of a "watch-only" wallet. The wallet user
 generates a PaymentRequest using the online part of the wallet, delivers it to the offline
 wallet (eg. by USB stick), which signs the transaction according to spec.
+
+Multi-party signing is a third area where standardization around unsigned transactions is
+unclear. If we imagine a 3-of-4 multi-sig setup, each party could a
 
 
 ==Protocol==
@@ -60,6 +63,37 @@ in case of the micropayment channel, the purpose of the request would, presumabl
 server itself. But, again, many different applications can be built on top of this protocol, which
 only concentrates on establishing a standardized way to request signatures over transaction inputs.
 
+===Payment phase===
+
+While the setup phase of this protocol will differ depending on the use case, the payment phase
+is always the same. Being an extension to BIP70, this protocol follows the same payment flow 
+as defined in BIP70. The step which involves constructing a Bitcoin transaction that pays the
+merchant, however, is replaced with
+
+# Customer adds item to basket, then checks out
+# Server generates payment URL from total amount
+# Customer clicks generated payment URL
+# Customer wallet fetches PaymentRequest; calculates value of payment
+# Customer wallet requests user action: "pay 0.176523 BTC to btccookies.com?". Click "Pay" or "Cancel".
+# Customer clicks "Pay". Relevant transactions are signed, sent to the server in a Payment message
+# Server responds with PaymentACK
+# Customer wallet displays: "Payment sent!"
+
+
+
+===Payment value calculation===
+
+The value of  
+
+For each transaction the client is asked to sign, 
+
+
+
+* For each SignTx in PaymentDetails.sign_tx do:
+    # For each SignInput in SignTx.sign_inputs do:
+	
+        # Let *prevOutPoint* denote the outpoint that is redeemed by the input with index *SignInput.input_index* in SignTx.unsigned_tx
+	# Let *prevOut* denote the output referenced by *prevOutPoint*. This output is present in one of the transactions in SignTx.spent_txs.
 
 
 
@@ -68,8 +102,7 @@ only concentrates on establishing a standardized way to request signatures over 
 
 
 
-
-# _BIP70 stuff_
+=*BIP70 stuff*=
 
 ==Messages==
 
